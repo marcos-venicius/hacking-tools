@@ -11,6 +11,12 @@ def params():
 
     return sys.argv[1]
 
+def decode_if_necessary(s):
+    try:
+        return s.decode()[:-1]
+    except:
+        return s
+
 def author():
     print("""
 ██████╗ ███╗   ██╗███████╗    ██████╗ ███████╗███████╗ ██████╗ ██╗    ██╗   ██╗███████╗██████╗ 
@@ -23,9 +29,7 @@ def author():
 by @marcos-venicius, https://github.com/marcos-venicius
 """)
 
-def main(domain):
-    print(f'\033[1;37m[*] Making DNS resolution for {domain}\033[0m')
-
+def resolve(domain):
     ip = IP(
         dst='8.8.8.8'
     )
@@ -46,9 +50,15 @@ def main(domain):
 
     ans = sr1(pkt, verbose=False)
 
-    ip = ans.an[0].rdata
+    return ans.an[0].rdata
 
-    print(f'\033[1;32m[+] IP for {domain} is {ip}\033[0m')
+def main(domain):
+    print(f'\033[1;37m[*] Making DNS resolution for {domain}\033[0m')
+
+    ip = resolve(domain)
+    ip = decode_if_necessary(ip)
+
+    print(f'\033[1;32m[+] IP for {domain} is \033[1;36m"{ip}"\033[0m')
 
 if __name__ == '__main__':
     author()
