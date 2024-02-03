@@ -63,7 +63,7 @@ try:
     found, ttl, counter = set(), 1, 0
 
     while True:
-        res = trace(counter, ip)
+        res = trace(ttl, ip)
 
         if res:
             if res.src in found:
@@ -75,7 +75,7 @@ try:
 
             print(f'[{str(counter).ljust(3, " ")}] {res.src}')
 
-        counter += 1
+        ttl += 1
 
     print('\n\033[1;32m[+] Tracing finished\033[0m\n')
 except:
