@@ -27,6 +27,11 @@ def params():
         print('Usage: sudo ./trace-route.py <ip>')
         exit(1)
 
+    if sys.argv[1] == '--help':
+        print('Usage: sudo ./trace-route.py <ip>')
+        print('[env] MAX_TTL\t\tSet the max number of hops (max TTL to be reached). Default is 30')
+        exit(0)
+
     if not ip_is_valid(sys.argv[1]):
         print('\033[1;31m[!] Invalid IP address\033[0m')
         exit(1)
@@ -37,6 +42,20 @@ def is_sudo():
     import os
 
     return os.geteuid() == 0
+
+def get_max_ttl():
+    import os
+
+    env = os.environ.get("MAX_TTL")
+
+    if env is None:
+        return 30
+
+    if env.isnumeric() and int(env) >= 1:
+        return int(env)
+
+    return 30
+
 
 def trace(ttl, ip):
     ip = IP(
@@ -53,6 +72,7 @@ if not is_sudo():
     exit(1)
 
 ip = params()
+MAX_TTL = get_max_ttl()
 
 author()
 
@@ -60,7 +80,7 @@ print('\033[0;36m[*] Press ctrl+c when you want to stop\033[0m\n')
 print('\033[1;37mTracing route...\033[0m\n')
 
 try:
-    found, ttl, counter = set(), 1, 0
+    found, ttl = set(), 1
 
     while True:
         res = trace(ttl, ip)
@@ -71,12 +91,15 @@ try:
             else:
                 found.add(res.src)
 
-            counter += 1
+            print(f'\033[1;32m[{str(ttl).ljust(3, " ")}] {res.src}\033[0m')
+        else:
+            print(f'\033[1;31m[{str(ttl).ljust(3, " ")}] *\033[0m')
 
-            print(f'[{str(counter).ljust(3, " ")}] {res.src}')
+        if ttl >= MAX_TTL:
+            break
 
         ttl += 1
 
-    print('\n\033[1;32m[+] Tracing finished\033[0m\n')
+    print('\n\033[1;37m[+] Tracing finished\033[0m\n')
 except:
     exit(0)

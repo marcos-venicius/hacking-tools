@@ -21,9 +21,16 @@ By incrementing the TTL value one by one (starting at 1) we can keep track the r
 * This script should run as sudo
 * This script needs a parameter that is the target you want to trace the route
     * it cannot be a domain, to transform the domain in a IP you can use my [DNS Resolver tool](../dns-resolver/) that is free.
+* The default MAX_TTL(number of HOPS) is 30
 
 Example:
 
 ```bash
 sudo ./trace-route.py 10.0.0.4
+```
+
+if you wanna change the max TTL, you can use like:
+
+```bash
+sudo MAX_TTL=40 ./trace-route.py 10.0.0.4
 ```
