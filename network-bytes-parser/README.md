@@ -22,7 +22,6 @@ This tool, gets the bytes to the ARP protocol.
 
 Here are the fields:
 
-| ------------------------------------- | --------- | ------- |
 | Field name                            | From byte | To byte |
 | ------------------------------------- | --------- | ------- |
 | (Ethernet) Destination MAC Address    |  0        | 5       |
