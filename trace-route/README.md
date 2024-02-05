@@ -1,5 +1,7 @@
 # Trace Route
 
+![image](https://github.com/marcos-venicius/hacking-tools/assets/94018427/b8beebd4-977b-455d-88a5-795a5b71a06c)
+
 Basically the concept works using the TTL parameter of the IP protocol.
 
 When you send a packet using the IP protocol, automatically it receives a default TTL (Time To Live) value,
