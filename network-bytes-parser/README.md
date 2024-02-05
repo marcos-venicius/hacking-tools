@@ -6,6 +6,8 @@ This tool has the purpose of learning more about the bytes on the network.
 
 This tool can parse arp request based only on your bytes.
 
+![network-bytes-parser](https://github.com/marcos-venicius/hacking-tools/assets/94018427/a237b9e1-c983-4b22-8fd1-b1f3e3f9794b)
+
 ## How it works?
 
 This is the funny part!
@@ -22,7 +24,6 @@ This tool, gets the bytes to the ARP protocol.
 
 Here are the fields:
 
-| ------------------------------------- | --------- | ------- |
 | Field name                            | From byte | To byte |
 | ------------------------------------- | --------- | ------- |
 | (Ethernet) Destination MAC Address    |  0        | 5       |
