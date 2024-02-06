@@ -97,30 +97,36 @@ class ARP:
             'target_ip_address': self.__parse_target_ip()
         }
 
+class IPv4:
+    def __init__(self, byts):
+        self.byts = byts[14:]
+
+    def __parse_source_ip_address(self):
+        return '.'.join([str(int('0x' + i, 16)) for i in self.byts[11:15]])
+
+    def parse(self):
+        return {
+            'source_ip_address': self.__parse_source_ip_address()
+        }
+
 class Parser:
     def __init__(self, byts):
         self.byts = byts
 
     def parse(self):
-        eth = Ethernet(self.byts)
+        eth = Ethernet(self.byts).parse()
 
         result = {
-            'Ethernet': eth.parse()
+            'Ethernet': eth
         }
 
-        if result['Ethernet']['protocol'] == 'ARP':
+        if eth['protocol'] == 'ARP':
             arp = ARP(byts).parse()
-            result['ARP'] = {}
+            result['ARP'] = arp
             result['Ethernet']['padding'] = arp['padding']
-            result['ARP']['hardware_type'] = arp['hardware_type']
-            result['ARP']['protocol_type'] = arp['protocol_type']
-            result['ARP']['hardware_size'] = arp['hardware_size']
-            result['ARP']['protocol_size'] = arp['protocol_size']
-            result['ARP']['opcode'] = arp['opcode']
-            result['ARP']['sender_mac_address'] = arp['sender_mac_address']
-            result['ARP']['sender_ip_address'] = arp['sender_ip_address']
-            result['ARP']['target_mac_address'] = arp['target_mac_address']
-            result['ARP']['target_ip_address'] = arp['target_ip_address']
+        elif eth['protocol'] == 'IPv4':
+            ipv4 = IPv4(self.byts).parse()
+            result['IPv4'] = ipv4
 
         return result
 
@@ -149,6 +155,8 @@ def display(byts):
         print(f'    Sender IP Address:      {data[protocol]["sender_ip_address"]}')
         print(f'    Target MAC Address:     {data[protocol]["target_mac_address"]}')
         print(f'    Target IP Address:      {data[protocol]["target_ip_address"]}')
+    elif protocol == 'IPv4':
+        print(f'    Source IP Address:      {data[protocol]["source_ip_address"]}')
     else:
         print('Unimplemented protocol')
 
