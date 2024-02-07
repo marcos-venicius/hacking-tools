@@ -147,11 +147,19 @@ class TCP:
 
         return ', '.join(reversed(f))
 
+    def __parse_data_offset(self):
+        return int(self.byts[12][0], 16)
+
+    def __parse_data(self):
+        return bytes.fromhex(''.join(self.byts[24+self.__parse_data_offset():])).decode('ascii')
+
     def parse(self):
         return {
             'source_port': self.__parse_source_port(),
             'destination_port': self.__parse_destination_port(),
-            'flags': self.__parse_flags()
+            'flags': self.__parse_flags(),
+            'data_offset': self.__parse_data_offset(),
+            'data': self.__parse_data()
         }
 
 class Parser:
@@ -216,6 +224,8 @@ def display(byts):
             print(f'        Source Port:        {protocol["source_port"]}')
             print(f'        Destination Port:   {protocol["destination_port"]}')
             print(f'        Flags:              {protocol["flags"]}')
+            print(f'        Data Offset:        {protocol["data_offset"]}')
+            print(f'        Data:               {protocol["data"]}')
         else:
             print('        Unimplemented protocol')
     else:
