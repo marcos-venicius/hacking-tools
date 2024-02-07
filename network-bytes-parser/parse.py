@@ -102,11 +102,56 @@ class IPv4:
         self.byts = byts[14:]
 
     def __parse_source_ip_address(self):
-        return '.'.join([str(int('0x' + i, 16)) for i in self.byts[11:15]])
+        return '.'.join([str(int('0x' + i, 16)) for i in self.byts[12:16]])
+
+    def __parse_destination_ip_address(self):
+        return '.'.join([str(int('0x' + i, 16)) for i in self.byts[16:20]])
+
+    def __parse_protocol(self):
+        p = { 6: 'TCP' }
+        return p[int(self.byts[9], 16)]
+
+    def __parse_ihl(self):
+        return int(self.byts[0][1], 16) * 4
 
     def parse(self):
         return {
-            'source_ip_address': self.__parse_source_ip_address()
+            'source_ip_address': self.__parse_source_ip_address(),
+            'destination_ip_address': self.__parse_destination_ip_address(),
+            'protocol': self.__parse_protocol(),
+            'ihl': self.__parse_ihl(),
+            'payload': self.byts[self.__parse_ihl():]
+        }
+
+class TCP:
+    def __init__(self, byts):
+        self.byts = byts
+
+    def __parse_source_port(self):
+        return int(''.join(self.byts[0:2]), 16)
+
+    def __parse_destination_port(self):
+        return int(''.join(self.byts[2:4]), 16)
+
+    def __parse_flags(self):
+        flags_d = {32: 'URG', 16: 'ACK', 8: 'PSH', 4: 'RST', 2: 'SYN', 1: 'FIN'}
+        flags_a = [32, 16, 8, 4, 2, 1]
+
+        flags = int(self.byts[13], 16)
+        f = []
+
+        for i in flags_a:
+            if i <= flags:
+                f.append(flags_d[i])
+                flags -= i
+
+        return ', '.join(reversed(f))
+
+    def parse(self):
+        return {
+            'source_port': self.__parse_source_port(),
+            'destination_port': self.__parse_destination_port(),
+            'flags': self.__parse_flags()
         }
 
 class Parser:
@@ -127,6 +172,9 @@ class Parser:
         elif eth['protocol'] == 'IPv4':
             ipv4 = IPv4(self.byts).parse()
             result['IPv4'] = ipv4
+
+            if ipv4['protocol'] == 'TCP':
+                ipv4['TCP'] = TCP(ipv4['payload']).parse()
 
         return result
 
@@ -156,7 +204,20 @@ def display(byts):
         print(f'    Target MAC Address:     {data[protocol]["target_mac_address"]}')
         print(f'    Target IP Address:      {data[protocol]["target_ip_address"]}')
     elif protocol == 'IPv4':
+        print(f'    IHL:                    {data[protocol]["ihl"]}')
         print(f'    Source IP Address:      {data[protocol]["source_ip_address"]}')
+        print(f'    Destination IP Address: {data[protocol]["destination_ip_address"]}')
+        print(f'    Protocol:               {data[protocol]["protocol"]}')
+        print()
+        print(f'    {data[protocol]["protocol"]}:')
+
+        if data[protocol]["protocol"] == "TCP":
+            protocol = data[protocol][data[protocol]['protocol']]
+            print(f'        Source Port:        {protocol["source_port"]}')
+            print(f'        Destination Port:   {protocol["destination_port"]}')
+            print(f'        Flags:              {protocol["flags"]}')
+        else:
+            print('        Unimplemented protocol')
     else:
         print('Unimplemented protocol')
 
