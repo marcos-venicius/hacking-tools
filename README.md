@@ -7,3 +7,4 @@
 - [Network Scanner](./network-scanner/README.md)
 - [Network Scanner (PS1)](./network-scanner-ps1/README.md)
 - [Port Scan](./port-scan/README.md)
+- [Port Scan (PS1)](./port-scan-ps1/README.md)
