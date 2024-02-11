@@ -5,4 +5,5 @@
 - [Trace Route](./trace-route/README.md)
 - [Network Bytes Parser](./network-bytes-parser/README.md)
 - [Network Scanner](./network-scanner/README.md)
+- [Network Scanner (PS1)](./network-scanner-ps1/README.md)
 - [Port Scan](./port-scan/README.md)
