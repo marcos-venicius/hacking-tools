@@ -81,10 +81,8 @@ int test_port(char* ip, int port) {
 
   conn = connect(sock, (struct sockaddr*)&target, sizeof(target));
 
-  if (conn == 0) {
-    close(sock);
-    close(conn);
-  }
+  close(sock);
+  close(conn);
 
   return conn;
 }
