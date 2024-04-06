@@ -19,7 +19,12 @@ for x in $ns; do
   fi
 done
 
-echo -e "\n\033[1;36m[*]\033[1;37m RESULTS\033[0m\n"
+if [ ${#success[@]} -eq 0 ]; then
+  echo -e "\n\033[1;31m[-]\033[1;37m NOT VULNERABLE\033[0m\n"
+  exit 0
+fi
+
+echo -e "\n\033[1;32m[+]\033[1;37m RESULTS\033[0m\n"
 
 for n in ${success[@]}; do
   echo -e "\033[1;36m[*]\033[1;37m $n\033[0m"
