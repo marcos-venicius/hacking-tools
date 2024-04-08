@@ -26,7 +26,7 @@ def dorks_type(*arg):
 parser = argparse.ArgumentParser(
     prog='gfinder',
     description='Find files from a website over the internet and/or download them',
-    epilog='./gfinder --domain example.com --filetype pdf'
+    epilog='./gfinder.py example.com ext:pdf - ./gfinder.py example.com "index of"'
 )
 
 parser.add_argument(
