@@ -2,22 +2,55 @@ import requests
 import os
 from settings import HEADERS
 
-def download_files(files_url: list[str], path='./downloads') -> None:
-    print('\nDownloading\n')
 
-    if not os.path.exists(path):
-        os.mkdir(path)
+class FilesDownloader:
+    def __init__(self, files, output):
+        self.files = files
+        self.output = output
 
-    for file in files_url:
-        response = requests.get(file, headers=HEADERS)
-        filename = file.split('/')[-1]
+    def __get_content(self, url):
+        response = requests.get(url, headers=HEADERS)
 
-        file_path = os.path.join(path, filename)
+        return response.content
 
-        with open(file_path, 'wb') as file:
-            file.write(response.content)
-            file.close()
+    def __download(self, files):
+        print(f'\nDOWNLOADING {len(files)} FILES\n')
 
-        print(f'+ {filename}')
+        if not os.path.exists(self.output):
+            os.mkdir(self.output)
 
-    print(f'\n{len(files_url)} files downloaded to {path} folder\n')
+        if not os.path.isdir(self.output):
+            raise Exception(f'"{self.output}" is not a folder')
+
+        for filename, filepath, fileurl in files:
+            print('?', filename)
+
+            dirpath = os.path.join(self.output, *filepath)
+            filepath = os.path.join(self.output, *filepath, filename)
+
+            os.makedirs(dirpath, exist_ok=True)
+
+            content = self.__get_content(fileurl)
+
+            with open(filepath, 'wb') as file:
+                file.write(content)
+                file.close()
+
+            print('+', filename, '    ', dirpath)
+
+    def all(self):
+        self.__download(self.files)
+
+    def by_index(self, indexes: list[int]):
+        indexes = set(indexes)
+
+        files = []
+
+        for index in indexes:
+            if index < 1 or index > len(self.files):
+                continue
+
+            files.append(self.files[index - 1])
+
+        self.__download(files)
+
