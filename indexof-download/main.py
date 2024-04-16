@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 import os
-import json
+import cache as cache_handler
+from settings import HEADERS
+from download import download_files
 import requests
 import re
 import argparse
@@ -9,30 +11,13 @@ import argparse
 parser = argparse.ArgumentParser(prog='Index Of Download', description='Download index of files recursively', epilog='./main.py http://example.com/index/of/path')
 
 parser.add_argument('url', help='Index of path. Example: http://example.com/index/of/path')
+parser.add_argument('-o', '--output', help='Folder to download files inside', default='./downloads')
 
 args = parser.parse_args()
 
 url = args.url
 
-HEADERS = {
-    'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0'
-}
-
-def load_cache() -> dict:
-    if os.path.exists('cache.json'):
-        with open('cache.json', 'r') as file:
-            string = file.read()
-            return json.loads(string)
-    else:
-        return {}
-
-
-def save_cache(cache: dict) -> None:
-    with open('cache.json', 'w') as file:
-        file.write(json.dumps(cache));
-        file.close()
-
-cache = load_cache()
+cache = cache_handler.load()
 files = []
 
 def get_files_structure(url: str, first=True, path_history=[]):
@@ -61,7 +46,7 @@ def get_files_structure(url: str, first=True, path_history=[]):
             get_files_structure(url, False, [result[1]])
 
 def extract_files_from_text(text: str) -> list[str]:
-    regex = r'(\[TXT\]|\[DIR\]).+(href=".+?")'
+    regex = r'(\[TXT\]|\[DIR\]|\[   \]).+(href=".+?")'
 
     files_list = []
     matches = re.findall(regex, text)
@@ -69,7 +54,8 @@ def extract_files_from_text(text: str) -> list[str]:
     for match in matches:
         kind_opts = {
             '[DIR]': 'dir',
-            '[TXT]': 'file'
+            '[TXT]': 'file',
+            '[   ]': 'file'
         }
 
         url = re.findall(r'".+?"', match[1])[0][1:-1]
@@ -91,28 +77,11 @@ def get_max_file_name_size():
 
     return m
 
-def download_all(files):
-    print('\n\033[1;36mDownloading\033[0m\n')
-
-    if not os.path.exists('downloads'):
-        os.mkdir('downloads')
-
-    for file in files:
-        response = requests.get(file, headers=HEADERS)
-        filename = file.split('/')[-1]
-
-        with open(f'./downloads/{filename}', 'wb') as file:
-            file.write(response.content)
-            file.close()
-        print(f'\033[1;32m+ \033[0m{filename}')
-
-    print(f'\n\033[1;32m{len(files)} files downloaded to ./downloads folder\033[0m\n')
-
 get_files_structure(url)
 
-save_cache(cache)
+cache_handler.save(cache)
 
-print('\033[1;37mFILES FOUND:\033[0m\n')
+print('FILES FOUND\n')
 
 max_file_size = get_max_file_name_size()
 
@@ -121,7 +90,7 @@ download_items = {}
 for index, file in enumerate(files):
     key = str(index + 1).ljust(3)
 
-    print('    \033[1;36m', key, '    \033[1;37m', file[0].ljust(max_file_size + 5), '\033[0m', file[1])
+    print('    ', key, '    ', file[0].ljust(max_file_size + 5), file[1])
 
     download_items[key.strip()] = file[1]
 
@@ -131,34 +100,32 @@ download_options = {
     '3': 'Exit'
 }
 
-print()
-print('\033[1;37mOPTIONS\033[0m')
-print()
+print('\nOPTIONS\n')
 
 for key in download_options:
-    print('    \033[1;36m', key.ljust(3, ' '), '    \033[0m', download_options[key])
+    print('    ', key.ljust(3, ' '), '    ', download_options[key])
 
 print()
 
 while True:
-    option = input('\033[1;37m> \033[0m')
+    option = input('> ')
 
     if option not in download_options:
         continue
 
-    if option == '1': download_all(list(download_items.values()))
+    if option == '1': download_files(list(download_items.values()), args.output)
 
     if option == '2':
-        print('\n\033[1;37mSELECT ALL ITEMS YOU WANT TO DOWNLOAD LIKE: 1 2 3 4...\033[0m\n')
+        print('\nSELECT ALL ITEMS YOU WANT TO DOWNLOAD LIKE: 1 2 3 4...\n')
 
         while True:
-            options = list(set(input('\033[1;37m> \033[0m').split(' ')))
+            options = list(set(input('> ').split(' ')))
 
             if sum([int(opt not in download_items) for opt in options]) != 0:
                 print('Invalid options')
                 continue
 
-            download_all([download_items[file] for file in options])
+            download_files([download_items[file] for file in options], args.output)
 
             break
     break
