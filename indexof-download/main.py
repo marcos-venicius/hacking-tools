@@ -7,7 +7,7 @@ import argparse
 
 parser = argparse.ArgumentParser(prog='Index Of Download', description='Download index of files recursively', epilog='./main.py http://example.com/index/of/path')
 
-parser.add_argument('url', help='Index of path. Example: http://example.com/index/of/path')
+parser.add_argument('-u', '--url', help='Index of path. Example: http://example.com/index/of/path')
 parser.add_argument('-o', '--output', help='Folder to download files inside', default='./downloads')
 parser.add_argument('-nc', '--no-cache', help='ignore cache', action="store_true", default=False)
 
@@ -52,7 +52,8 @@ if option == '1':
 
     files_downloader.all()
 
-if option == '2':
+
+elif option == '2':
     options = []
 
     try:
@@ -67,3 +68,5 @@ if option == '2':
 
     files_downloader.by_index(options)
 
+else:
+    exit()
