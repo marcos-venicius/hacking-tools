@@ -9,11 +9,26 @@ class FilesDownloader:
         self.output = output
 
     def __get_content(self, url):
-        response = requests.get(url, headers=HEADERS)
+        response = requests.get(url, headers=HEADERS, timeout=5000)
 
         return response.content
 
+    def __max_filename_length(self, files) -> int:
+        m = 0
+
+        for filename, _, _ in files:
+            filename_length = len(filename)
+
+            if filename_length > m:
+                m = filename_length
+        
+        return m
+
     def __download(self, files):
+        max_filename_length = self.__max_filename_length(files)
+        downloaded_files = 0
+        failed_downloads = 0
+
         print(f'\nDOWNLOADING {len(files)} FILES\n')
 
         if not os.path.exists(self.output):
@@ -23,20 +38,30 @@ class FilesDownloader:
             raise Exception(f'"{self.output}" is not a folder')
 
         for filename, filepath, fileurl in files:
-            print('?', filename)
+            print('?', filename.ljust(max_filename_length + 5, ' '), end=' ')
 
             dirpath = os.path.join(self.output, *filepath)
             filepath = os.path.join(self.output, *filepath, filename)
 
-            os.makedirs(dirpath, exist_ok=True)
+            try:
+                content = self.__get_content(fileurl)
 
-            content = self.__get_content(fileurl)
+                os.makedirs(dirpath, exist_ok=True)
+            except:
+                print('!', filepath)
+                failed_downloads += 1
+                continue
 
             with open(filepath, 'wb') as file:
                 file.write(content)
                 file.close()
 
-            print('+', filename, '    ', dirpath)
+            downloaded_files += 1
+            print('+', filepath)
+
+        print()
+        print(f'+ {downloaded_files} FILES DOWNLOADED SUCCESSFULLY')
+        print(f'! {failed_downloads} DOWNLOADS FAILED\n')
 
     def all(self):
         self.__download(self.files)

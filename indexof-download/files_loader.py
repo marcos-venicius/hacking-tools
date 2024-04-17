@@ -1,3 +1,4 @@
+from tqdm import tqdm
 from urllib.parse import urlparse, urljoin
 import requests
 import cache as cache_handler
@@ -11,6 +12,7 @@ class FilesLoader:
         self.path = self.__path(url)
         self.files = []
         self.no_cache = no_cache
+        self.loader = tqdm(range(0), 'FILES FOUND', unit='')
 
         if no_cache:
             self.cache = {}
@@ -56,6 +58,9 @@ class FilesLoader:
     def save(self):
         if not self.no_cache:
             cache_handler.save(self.cache)
+        
+        self.loader.close()
+        print()
 
     def get_max_filename_size(self):
         m = 0
@@ -93,6 +98,7 @@ class FilesLoader:
 
             if item_type == 'file':
                 self.files.append((item_name, path, item_url))
+                self.loader.update(1)
             elif item_type == 'dir':
                 self.get([*path, item_name])
 

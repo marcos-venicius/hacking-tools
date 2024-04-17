@@ -15,17 +15,16 @@ args = parser.parse_args()
 
 url = args.url
 
-files_loader = FilesLoader(url, no_cache=args.no_cache)
+print('SEARCHING FOR FILES...\n')
 
-print('SEARCHING FOR FILES...')
+files_loader = FilesLoader(url, no_cache=args.no_cache)
 
 files = files_loader.get()
 
-if len(files) == 0:
-    print('NO FILES FOUND')
-    exit(0)
+print('\n')
 
-print(f'\n{len(files)} FILES FOUND\n')
+if len(files) == 0:
+    exit(0)
 
 files_loader.save()
 
@@ -46,7 +45,6 @@ question = Question({
 
 option = question.ask('Choose an option> ')
 
-
 if option == '1':
     files_downloader = FilesDownloader(files, args.output)
 
@@ -62,8 +60,6 @@ if option == '2':
         exit(0)
 
     files_downloader = FilesDownloader(files, args.output)
-
-    print(options)
 
     files_downloader.by_index(options)
 
