@@ -1,5 +1,6 @@
 import requests
 import os
+import cache
 from settings import HEADERS
 
 
@@ -7,11 +8,16 @@ class FilesDownloader:
     def __init__(self, files, output):
         self.files = files
         self.output = output
+        self.cache = cache.load(db='grep.json')
 
     def __get_content(self, url):
+        if url in self.cache: return self.cache[url]
+
         response = requests.get(url, headers=HEADERS, timeout=5000)
 
-        return response.content
+        self.cache[url] = response.text
+
+        return response.text
 
     def __max_filename_length(self, files) -> int:
         m = 0
@@ -53,7 +59,7 @@ class FilesDownloader:
                 continue
 
             with open(filepath, 'wb') as file:
-                file.write(content)
+                file.write(content.encode('utf-8'))
                 file.close()
 
             downloaded_files += 1
