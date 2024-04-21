@@ -5,8 +5,11 @@ from files_loader import FilesLoader
 from question import Question
 from filter import Filter
 import argparse
+import os
 
-parser = argparse.ArgumentParser(prog='Index Of Download', description='Download index of files recursively', epilog='./main.py http://example.com/index/of/path')
+progname = os.path.basename(__file__)
+
+parser = argparse.ArgumentParser(prog=progname, description='Download index of files recursively', epilog='./main.py http://example.com/index/of/path')
 
 parser.add_argument('url', help='Index of path. Example: http://example.com/index/of/path')
 parser.add_argument('-o', '--output', help='Folder to download files inside', default='./downloads')
