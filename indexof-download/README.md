@@ -30,3 +30,36 @@ options:
 
 ./main.py http://example.com/index/of/path
 ```
+
+## Running
+
+Install python3 venv
+
+```bash
+sudo apt-get install python3.10-venv
+```
+
+Init the environment
+
+```bash
+python3 -v venv venv
+```
+
+Activate the environment
+
+```bash
+source ./venv/bin/activate
+```
+
+Install requirements
+
+```bash
+pip install -r requirements.txt
+```
+
+Run the software
+
+```bash
+./main.py http://example.com/path/to/index/of/folder
+```
+

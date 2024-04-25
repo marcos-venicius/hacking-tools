@@ -3,3 +3,4 @@ grep.json
 downloads/
 __pycache__
 *.swp
+venv
