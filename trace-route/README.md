@@ -1,6 +1,8 @@
 # Trace Route
 
-![image](https://github.com/marcos-venicius/hacking-tools/assets/94018427/b8beebd4-977b-455d-88a5-795a5b71a06c)
+![Screenshot from 2024-04-30 21-35-24](https://github.com/marcos-venicius/hacking-tools/assets/94018427/be36b0d4-2b18-4ebc-a101-7679c8a21a6a)
+
+![Screenshot from 2024-04-30 21-35-35](https://github.com/marcos-venicius/hacking-tools/assets/94018427/e9c4ae50-c435-42cb-879a-1bf23c7d328d)
 
 Basically the concept works using the TTL parameter of the IP protocol.
 
