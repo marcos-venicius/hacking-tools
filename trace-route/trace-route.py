@@ -18,6 +18,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('ip', help='IP to trace')
 parser.add_argument('--max-ttl', type=int, default=30, help='Set the max number of hops (max TTL reached). default is 30')
 parser.add_argument('--no-cache', action='store_true', default=False, help='Force the program to not use cache')
+parser.add_argument('-y', '--yes', action='store_true', default=False, help="Don't ask questions, just continue")
 
 args = parser.parse_args()
 
@@ -49,15 +50,20 @@ results = tracer.trace()
 
 print('\n\033[1;32m[+]\033[0m Tracing finished\n')
 
-question = Question({ 'y': 'yes', 'n': 'no' })
+response = 'y'
 
-response = question.ask("You want to loopkup the IP's location? ")
+if not args.yes:
+    question = Question({ 'y': 'yes', 'n': 'no' })
 
-print()
+    response = question.ask("You want to loopkup the IP's location? ")
+
+    print()
 
 if response == 'n':
     print('Bye')
     exit(0)
+
+print('\033[1;36m[*] Looking up for geolocations\n\033[0m')
 
 for ttl, ip in results:
     if ip:
