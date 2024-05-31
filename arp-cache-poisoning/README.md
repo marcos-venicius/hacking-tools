@@ -1,7 +1,7 @@
-# ARP poisoning tool
+# ARP Cache poisoning tool
 
 This tool use the scapy packet from python to execute an attack
-called ARP Poisoning.
+called ARP Cache Poisoning.
 
 **This script is for education purposes only! We are not responsible for misuse of the tool**
 
@@ -15,7 +15,7 @@ You need to execute this script as sudo because he will try to get your mac addr
 Example
 
 ```bash
-sudo ./attack.py 10.0.0.1 10.0.0.8
+sudo ./attack.py <victim-ip> <gateway-ip>
 ```
 
 The first parameter is the gateway and the last parameter is the victim machine ip.
@@ -30,10 +30,11 @@ Buuuuttt, we can make it be one!
 
 To do this, we just need to enable the IP Forwarding on your machine.
 
-I've tested this on a Kali Linux.
-
 ```bash
 sudo su
+```
+
+```bash
 echo 1 > /proc/sys/net/ipv4/ip_forward
 ```
 
@@ -45,4 +46,22 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 Now the victim can access the internet.
 
 And, you can see the traffic by using wireshark for example.
+
+### Stopping
+
+To stop the script just press `CTRL-C`, this will restore the ARP cache too.
+
+Now, restore your ip forwarding:
+
+```bash
+sudo su
+```
+
+```bash
+echo 0 > /proc/sys/net/ipv4/ip_forward
+```
+
+* And, open the file `/etc/sysctl.conf`
+* Search for `net.ipv4.ip_forward=1`
+* Change the number `1` to `0`.
 
