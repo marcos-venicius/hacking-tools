@@ -15,6 +15,7 @@ parser.add_argument('url', help='Index of path. Example: http://example.com/inde
 parser.add_argument('-o', '--output', help='Folder to download files inside', default='./downloads')
 parser.add_argument('-nc', '--no-cache', help='ignore cache', action="store_true", default=False)
 parser.add_argument('-g', '--grep', help='filter by a term')
+parser.add_argument('-d', '--depth', help='folder max depth', type=int, default=-1)
 
 args = parser.parse_args()
 
@@ -22,7 +23,7 @@ url = args.url
 
 print('SEARCHING FOR FILES...\n')
 
-files_loader = FilesLoader(url, no_cache=args.no_cache)
+files_loader = FilesLoader(url, no_cache=args.no_cache, depth=args.depth)
 
 files = files_loader.get()
 

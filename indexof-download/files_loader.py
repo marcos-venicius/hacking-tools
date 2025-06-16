@@ -6,13 +6,16 @@ from settings import HEADERS
 import os
 import re
 
+
 class FilesLoader:
-    def __init__(self, url: str, no_cache=False):
+    def __init__(self, url: str, no_cache=False, depth=-1):
+        self.depth = depth
         self.url = self.__base_url(url)
         self.path = self.__path(url)
+        self.raw_url = os.path.join(self.url, *self.path)
         self.files = []
         self.no_cache = no_cache
-        self.loader = tqdm(range(0), 'FILES FOUND', unit='')
+        self.loader = tqdm(range(0), url, unit='')
 
         if no_cache:
             self.cache = {}
@@ -30,25 +33,46 @@ class FilesLoader:
 
         return [chunk for chunk in path.split('/') if chunk]
 
-    def __extract_file_links_from_index_of_html_code(self, html: str) -> list[str]:
-        regex = r'(\[.+?\]).+(href=".+?")'
+    def __join_url(self, root, source):
+        chunks = []
+
+        if root.endswith('/'):
+            chunks.append(root[:-1])
+        else:
+            chunks.append(root)
+
+        if source.startswith('/'):
+            source = source[1:]
+        if source.endswith('/'):
+            source = source[:-1]
+
+        chunks.append(source)
+
+        return '/'.join(chunks)
+
+    def __extract_file_links_from_index_of_html_code(self, html: str):
+        regex = r'href="(.+?)"'
 
         files_list = []
         matches = re.findall(regex, html)
 
-        for match in matches:
-            is_ico = match[0] == '[ICO]'
-            is_dir = match[0] == '[DIR]'
-
-            if is_ico: continue
-
-            url = re.findall(r'".+?"', match[1])[0][1:-1]
-            kind = 'dir' if is_dir else 'file'
-
-            if kind == 'dir' and url.startswith('/'):
+        for resource in matches:
+            if resource == '/' or re.match(r'\?\w=\w;\w=\w', resource):
                 continue
 
-            files_list.append((kind, url))
+            if resource.endswith('/'):
+                if self.depth == 0:
+                    continue
+
+                path = self.__join_url(self.raw_url, resource)
+
+                loader = FilesLoader(path, self.no_cache, self.depth - 1)
+
+                loader.get()
+
+                self.files.extend(loader.files)
+            else:
+                files_list.append(('file', resource))
 
         return files_list
 
@@ -58,7 +82,7 @@ class FilesLoader:
     def save(self):
         if not self.no_cache:
             cache_handler.save(self.cache)
-        
+
         self.loader.close()
         print()
 
